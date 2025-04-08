@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flappy Things</title>
+  <style>
+    body {
+      margin: 0;
+      background: skyblue;
+      font-family: sans-serif;
+    }
+
+    #game {
+      position: relative;
+      width: 400px;
+      height: 500px;
+      margin: 50px auto;
+      background: #70c5ce;
+      overflow: hidden;
+      border: 2px solid #000;
+    }
+
+    #bird {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: yellow;
+      border-radius: 50%;
+      top: 200px;
+      left: 50px;
+      transition: top 0.15s ease-out;
+    }
+
+    .pipe {
+      position: absolute;
+      width: 60px;
+      background: green;
+    }
+
+    #pipe-top {
+      top: 0;
+      right: 0;
+    }
+
+    #pipe-bottom {
+      bottom: 0;
+      right: 0;
+    }
+
+    #message {
+      position: absolute;
+      top: 40%;
+      width: 100%;
+      text-align: center;
+      font-size: 22px;
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="bird"></div>
+    <div id="pipe-top" class="pipe"></div>
+    <div id="pipe-bottom" class="pipe"></div>
+    <div id="message">Tekan tombol apa saja untuk mulai</div>
+  </div>
+
+  <script>
+    const bird = document.getElementById("bird");
+    const pipeTop = document.getElementById("pipe-top");
+    const pipeBottom = document.getElementById("pipe-bottom");
+    const message = document.getElementById("message");
+
+    let birdY = 200;
+    let gravity = 0.6;   // sedang
+    let jump = -7;       // sedang
+    let velocity = 0;
+
+    let pipeX = 400;
+    let gap = 130;
+    let started = false;
+
+    function resetPipe() {
+      pipeX = 400;
+      const pipeHeight = Math.floor(Math.random() * 160) + 60;
+      pipeTop.style.height = pipeHeight + "px";
+      pipeBottom.style.height = (400 - pipeHeight - gap) + "px";
+    }
+
+    function gameLoop() {
+      if (started) {
+        velocity += gravity;
+        velocity = Math.min(velocity, 7); // batas kecepatan jatuh
+        birdY += velocity;
+
+        pipeX -= 2; // gerak pipa sedang
+
+        if (pipeX < -60) resetPipe();
+
+        pipeTop.style.right = (400 - pipeX) + "px";
+        pipeBottom.style.right = (400 - pipeX) + "px";
+
+        if (
+          birdY > 470 || birdY < 0 ||
+          (pipeX < 80 && pipeX > 20 && (
+            birdY < parseInt(pipeTop.style.height) ||
+            birdY + 30 > 500 - parseInt(pipeBottom.style.height)
+          ))
+        ) {
+          alert("Game Over!");
+          location.reload();
+        }
+
+        bird.style.top = birdY + "px";
+      } else {
+        bird.style.top = birdY + "px";
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    document.addEventListener("keydown", () => {
+      if (!started) {
+        started = true;
+        message.style.display = "none";
+        resetPipe();
+      }
+      velocity = jump;
+    });
+
+    gameLoop();
+  </script>
+</body>
+</html>
